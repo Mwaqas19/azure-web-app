@@ -12,12 +12,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - name: Deploy to VM
+    - name: Deploy to VM via SSH Key
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.VM_HOST }}
         username: ${{ secrets.VM_USERNAME }}
-        password: ${{ secrets.VM_PASSWORD }}
+        key: ${{ secrets.VM_SSH_KEY }}
         script: |
           cd /var/www/html
           sudo git pull origin main
