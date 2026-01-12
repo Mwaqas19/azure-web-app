@@ -12,13 +12,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - name: Deploy to VM via SSH Key
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_USERNAME }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        script: |
-          cd /var/www/html
-          sudo git pull origin main
-          sudo systemctl reload nginx
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Deploy to VM
+      run: |
+        ssh -i ~/.ssh/id_rsa azureuser@${{ secrets.VM_HOST }} 'cd /var/www/html && sudo git pull origin main && sudo systemctl reload nginx'
